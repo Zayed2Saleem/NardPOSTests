@@ -1,0 +1,686 @@
+{
+	"info": {
+		"_postman_id": "20195012-42da-41dc-aa72-c2125e0eb1ce",
+		"name": "NardPOS API Collection",
+		"description": "API Automation Test Collection for NardPOS POS System\n\nPart 1 – API Automation\n\nThis collection covers:\n- Authentication (Login with JWT)\n- Products Management\n- Sales Operations\n\nTest Scenarios:\n- Positive & Negative test cases\n- Valid/Invalid credentials\n- With/Without authorization tokens\n- Valid/Invalid payloads",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "39670680",
+		"_collection_link": "https://fts-team.postman.co/workspace/remittance-bot~0ad9a91a-71e0-42d1-a8fc-e02f7145d59b/collection/39670680-20195012-42da-41dc-aa72-c2125e0eb1ce?action=share&source=collection_link&creator=39670680"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login - Valid Credentials",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test: Status code should be 200",
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Test: Response should have access_token",
+									"pm.test('Response has access_token', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('access_token');",
+									"    pm.expect(jsonData.access_token).to.be.a('string');",
+									"    pm.expect(jsonData.access_token.length).to.be.greaterThan(0);",
+									"});",
+									"",
+									"// Test: Response should have refresh_token",
+									"pm.test('Response has refresh_token', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('refresh_token');",
+									"});",
+									"",
+									"// Test: Response should have token_type Bearer",
+									"pm.test('Token type is Bearer', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.token_type).to.eql('Bearer');",
+									"});",
+									"",
+									"// Test: Response should have expires_in",
+									"pm.test('Response has expires_in', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('expires_in');",
+									"    pm.expect(jsonData.expires_in).to.be.a('number');",
+									"});",
+									"",
+									"// Test: Response should have user object",
+									"pm.test('Response has user object with required fields', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('user');",
+									"    pm.expect(jsonData.user).to.have.property('id');",
+									"    pm.expect(jsonData.user).to.have.property('username');",
+									"    pm.expect(jsonData.user).to.have.property('tenant_id');",
+									"});",
+									"",
+									"// Test: Response time should be less than 300ms",
+									"pm.test('Response time is less than 300ms', function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(300);",
+									"});",
+									"",
+									"// Save tokens to collection variables",
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('access_token', jsonData.access_token);",
+									"    pm.collectionVariables.set('refresh_token', jsonData.refresh_token);",
+									"    console.log('Tokens saved to collection variables');",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"test_user\",\n    \"password\": \"123456\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Login with valid credentials to get access token"
+					},
+					"response": []
+				},
+				{
+					"name": "Login - Invalid Username",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"testuser\",\n    \"password\": \"123456\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Login with invalid username - should return 401"
+					},
+					"response": []
+				},
+				{
+					"name": "Login - Invalid Password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test: Status code should be 401",
+									"pm.test('Status code is 401 Unauthorized', function () {",
+									"    pm.response.to.have.status(401);",
+									"});",
+									"",
+									"// Test: Response should have error message",
+									"pm.test('Response has error message for invalid password', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('message');",
+									"    pm.expect(jsonData.message).to.include('Invalid');",
+									"});",
+									"",
+									"// Test: Response should NOT have access_token",
+									"pm.test('Response does not have access_token', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.not.have.property('access_token');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"test_user\",\n    \"password\": \"123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Login with valid username but wrong password - should return 401"
+					},
+					"response": []
+				}
+			],
+			"description": "Authentication endpoints for user login"
+		},
+		{
+			"name": "Products",
+			"item": [
+				{
+					"name": "Get Products - With Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/products",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"products"
+							]
+						},
+						"description": "Get product list with valid authorization token"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Products - Without Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/products",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"products"
+							]
+						},
+						"description": "Get product list without authorization token - should return 401"
+					},
+					"response": []
+				}
+			],
+			"description": "Product management endpoints"
+		},
+		{
+			"name": "Sales",
+			"item": [
+				{
+					"name": "Create Sale - Valid Payload",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"items\": [\n        {\n            \"product_id\": 1,\n            \"name\": \"milk\",\n            \"quantity\": 2,\n            \"unit_price\": 150\n        },\n        {\n            \"product_id\": 3,\n            \"name\": \"PoP Cake\",\n            \"quantity\": 1,\n            \"unit_price\": 200\n        }\n    ],\n    \"Total\": 500,\n    \"payment_method\": \"cash\"\n}\n"
+						},
+						"url": {
+							"raw": "{{base_url}}/sales",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"sales"
+							]
+						},
+						"description": "Create a new sale with valid payload and authorization"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Sale - Invalid Payload (Missing Items)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/sales",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"sales"
+							]
+						},
+						"description": "Create sale with missing required fields - should return 400"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Sale by ID - Valid ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/sales/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"sales",
+								"1"
+							]
+						},
+						"description": "Get sale details by valid ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Sale by ID - Without Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/sales/12345",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"sales",
+								"12345"
+							]
+						},
+						"description": "Get sale without authorization token - should return 401"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Sale by ID - Not Found",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/sales/10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"sales",
+								"10"
+							]
+						},
+						"description": "Get sale with non-existent ID - should return 404"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Sale by ID - Invalid ID Format",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/sales/a10g",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"sales",
+								"a10g"
+							]
+						},
+						"description": "Get sale with invalid ID format - should return 400"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Archived Sales - With Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/sales-arc/archive",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"sales-arc",
+								"archive"
+							]
+						},
+						"description": "Get archived sales list with valid authorization"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Archived Sales - Without Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/sales/archive",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"sales",
+								"archive"
+							]
+						},
+						"description": "Get archived sales without authorization token - should return 401"
+					},
+					"response": []
+				}
+			],
+			"description": "Sales management endpoints"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000"
+		},
+		{
+			"key": "access_token",
+			"value": ""
+		},
+		{
+			"key": "refresh_token",
+			"value": ""
+		}
+	]
+}

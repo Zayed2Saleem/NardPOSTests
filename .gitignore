@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+ui-tests/venv/
+.pytest_cache/
+
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+
+
+# Editor/IDE
+.vscode/
+.DS_Store
+Thumbs.db

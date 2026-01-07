@@ -1,0 +1,22 @@
+# NardPOS UI Automation - Python Dependencies
+
+# Selenium WebDriver
+selenium==4.16.0
+
+# WebDriver Manager - Auto-manage browser drivers
+webdriver-manager==4.0.1
+
+# Pytest - Test framework
+pytest==7.4.3
+pytest-html==4.1.1
+pytest-xdist==3.5.0
+
+# Allure reporting (optional)
+allure-pytest==2.13.2
+
+# Additional utilities
+python-dotenv==1.0.0
+Pillow==10.1.0
+
+urllib3>=1.26.0,<3
+

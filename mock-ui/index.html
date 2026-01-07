@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NardPOS - Point of Sale System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        /* Login Page Styles */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-box {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .login-box h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #00d9ff;
+            font-size: 2rem;
+        }
+
+        .login-box .logo {
+            text-align: center;
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ccc;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #00d9ff;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00d9ff 0%, #0099cc 100%);
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 217, 255, 0.4);
+        }
+
+        .error-message {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff6b6b;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        /* Dashboard Styles */
+        .dashboard {
+            display: none;
+        }
+
+        .navbar {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .navbar h2 {
+            color: #00d9ff;
+        }
+
+        .navbar .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .navbar .user-info span {
+            color: #ccc;
+        }
+
+        .btn-logout {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff6b6b;
+            padding: 8px 20px;
+            border: 1px solid #ff6b6b;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-logout:hover {
+            background: #ff6b6b;
+            color: #fff;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px 30px;
+            gap: 10px;
+        }
+
+        .nav-tab {
+            padding: 10px 25px;
+            border: none;
+            background: transparent;
+            color: #ccc;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+
+        .nav-tab.active, .nav-tab:hover {
+            background: rgba(0, 217, 255, 0.2);
+            color: #00d9ff;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        /* POS Page */
+        .pos-container {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .product-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            border-color: #00d9ff;
+            box-shadow: 0 5px 20px rgba(0, 217, 255, 0.3);
+        }
+
+        .product-card .icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .product-card .name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .product-card .price {
+            color: #00d9ff;
+            font-size: 1.1rem;
+        }
+
+        /* Cart */
+        .cart-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .cart-container h3 {
+            margin-bottom: 20px;
+            color: #00d9ff;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 10px;
+        }
+
+        .cart-items {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .cart-item .item-info {
+            flex: 1;
+        }
+
+        .cart-item .item-name {
+            font-weight: 600;
+        }
+
+        .cart-item .item-price {
+            color: #ccc;
+            font-size: 0.9rem;
+        }
+
+        .cart-item .item-qty {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .cart-item .qty-btn {
+            width: 30px;
+            height: 30px;
+            border: none;
+            border-radius: 50%;
+            background: rgba(0, 217, 255, 0.2);
+            color: #00d9ff;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .cart-item .remove-btn {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff6b6b;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .cart-summary {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 15px;
+        }
+
+        .cart-summary .row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .cart-summary .total {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #00d9ff;
+        }
+
+        .payment-methods {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .payment-btn {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            background: transparent;
+            color: #fff;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .payment-btn.selected {
+            border-color: #00d9ff;
+            background: rgba(0, 217, 255, 0.2);
+        }
+
+        .btn-checkout {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-checkout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 255, 136, 0.4);
+        }
+
+        .btn-checkout:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Sales History */
+        .sales-history {
+            display: none;
+        }
+
+        .sales-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .sales-table th, .sales-table td {
+            padding: 15px;
+            text-align: left;
+        }
+
+        .sales-table th {
+            background: rgba(0, 217, 255, 0.2);
+            color: #00d9ff;
+        }
+
+        .sales-table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .status-completed {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 400px;
+            border: 1px solid rgba(0, 217, 255, 0.3);
+        }
+
+        .modal-content .success-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .modal-content h2 {
+            color: #00ff88;
+            margin-bottom: 10px;
+        }
+
+        .modal-content .receipt-number {
+            color: #00d9ff;
+            font-size: 1.2rem;
+            margin: 15px 0;
+        }
+
+        .modal-content .btn {
+            margin-top: 20px;
+        }
+
+        /* Empty cart message */
+        .empty-cart {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div class="login-container" id="loginPage">
+        <div class="login-box">
+            <div class="logo">🏪</div>
+            <h1>NardPOS</h1>
+            <div class="error-message" id="loginError">Invalid username or password</div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" placeholder="Enter username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter password" required>
+                </div>
+                <button type="submit" class="btn btn-primary" id="loginBtn">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="dashboard" id="dashboard">
+        <nav class="navbar">
+            <h2>🏪 NardPOS</h2>
+            <div class="user-info">
+                <span>Welcome, <strong id="welcomeUser">test_user</strong></span>
+                <span>Tenant: <strong id="tenantId">db_123</strong></span>
+                <button class="btn-logout" id="logoutBtn">Logout</button>
+            </div>
+        </nav>
+        
+        <div class="nav-tabs">
+            <button class="nav-tab active" id="posTab" data-tab="pos">🛒 Point of Sale</button>
+            <button class="nav-tab" id="historyTab" data-tab="history">📋 Sales History</button>
+        </div>
+
+        <!-- POS Page -->
+        <div class="main-content pos-page" id="posPage">
+            <div class="pos-container">
+                <div class="products-section">
+                    <h3 style="margin-bottom: 20px;">Products</h3>
+                    <div class="products-grid" id="productsGrid">
+                        <!-- Products will be loaded here -->
+                    </div>
+                </div>
+                
+                <div class="cart-container">
+                    <h3>🛒 Current Sale</h3>
+                    <div class="cart-items" id="cartItems">
+                        <div class="empty-cart">Cart is empty</div>
+                    </div>
+                    <div class="cart-summary">
+                        <div class="row">
+                            <span>Subtotal:</span>
+                            <span id="subtotal">$0.00</span>
+                        </div>
+                        <div class="row">
+                            <span>Tax (10%):</span>
+                            <span id="tax">$0.00</span>
+                        </div>
+                        <div class="row total">
+                            <span>Total:</span>
+                            <span id="total">$0.00</span>
+                        </div>
+                    </div>
+                    <div class="payment-methods">
+                        <button class="payment-btn selected" data-method="cash" id="cashBtn">💵 Cash</button>
+                        <button class="payment-btn" data-method="card" id="cardBtn">💳 Card</button>
+                        <button class="payment-btn" data-method="mobile" id="mobileBtn">📱 Mobile</button>
+                    </div>
+                    <button class="btn-checkout" id="checkoutBtn" disabled>Complete Sale</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sales History Page -->
+        <div class="main-content sales-history" id="historyPage">
+            <h3 style="margin-bottom: 20px;">📋 Sales History</h3>
+            <table class="sales-table">
+                <thead>
+                    <tr>
+                        <th>Receipt #</th>
+                        <th>Date</th>
+                        <th>Items</th>
+                        <th>Total</th>
+                        <th>Payment</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="salesTableBody">
+                    <!-- Sales will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal" id="successModal">
+        <div class="modal-content">
+            <div class="success-icon">✅</div>
+            <h2>Sale Completed!</h2>
+            <p>Your transaction was successful</p>
+            <div class="receipt-number" id="receiptNumber">Receipt: RCP-20260106-1234</div>
+            <div class="receipt-total" id="receiptTotal">Total: $0.00</div>
+            <button class="btn btn-primary" id="closeModal">OK</button>
+        </div>
+    </div>
+
+    <script>
+        // Products data
+        const products = [
+            { id: 1, name: 'Coca-Cola 330ml', price: 1.50, icon: '🥤' },
+            { id: 2, name: 'Pepsi 500ml', price: 1.75, icon: '🥤' },
+            { id: 3, name: 'Lays Chips', price: 2.25, icon: '🍟' },
+            { id: 4, name: 'Snickers Bar', price: 1.25, icon: '🍫' },
+            { id: 5, name: 'Mineral Water', price: 0.99, icon: '💧' },
+            { id: 6, name: 'Coffee', price: 2.50, icon: '☕' },
+            { id: 7, name: 'Sandwich', price: 4.99, icon: '🥪' },
+            { id: 8, name: 'Apple', price: 0.75, icon: '🍎' }
+        ];
+
+        // Cart state
+        let cart = [];
+        let selectedPayment = 'cash';
+        let salesHistory = [];
+
+        // Valid credentials
+        const validCredentials = {
+            username: 'test_user',
+            password: '123456'
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            renderProducts();
+            setupEventListeners();
+        });
+
+        // Render products
+        function renderProducts() {
+            const grid = document.getElementById('productsGrid');
+            grid.innerHTML = products.map(product => `
+                <div class="product-card" data-id="${product.id}" id="product-${product.id}">
+                    <div class="icon">${product.icon}</div>
+                    <div class="name">${product.name}</div>
+                    <div class="price">$${product.price.toFixed(2)}</div>
+                </div>
+            `).join('');
+
+            // Add click events to products
+            document.querySelectorAll('.product-card').forEach(card => {
+                card.addEventListener('click', () => addToCart(parseInt(card.dataset.id)));
+            });
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Login form
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+
+            // Logout
+            document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+
+            // Tab navigation
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+            });
+
+            // Payment methods
+            document.querySelectorAll('.payment-btn').forEach(btn => {
+                btn.addEventListener('click', () => selectPayment(btn.dataset.method));
+            });
+
+            // Checkout
+            document.getElementById('checkoutBtn').addEventListener('click', handleCheckout);
+
+            // Close modal
+            document.getElementById('closeModal').addEventListener('click', closeModal);
+        }
+
+        // Handle login
+        function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (username === validCredentials.username && password === validCredentials.password) {
+                document.getElementById('loginPage').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+                document.getElementById('welcomeUser').textContent = username;
+                document.getElementById('loginError').style.display = 'none';
+            } else {
+                document.getElementById('loginError').style.display = 'block';
+            }
+        }
+
+        // Handle logout
+        function handleLogout() {
+            document.getElementById('dashboard').style.display = 'none';
+            document.getElementById('loginPage').style.display = 'flex';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            cart = [];
+            updateCart();
+        }
+
+        // Switch tab
+        function switchTab(tab) {
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+
+            if (tab === 'pos') {
+                document.getElementById('posPage').style.display = 'block';
+                document.getElementById('historyPage').style.display = 'none';
+            } else {
+                document.getElementById('posPage').style.display = 'none';
+                document.getElementById('historyPage').style.display = 'block';
+                renderSalesHistory();
+            }
+        }
+
+        // Add to cart
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            const existingItem = cart.find(item => item.id === productId);
+
+            if (existingItem) {
+                existingItem.quantity++;
+            } else {
+                cart.push({ ...product, quantity: 1 });
+            }
+
+            updateCart();
+        }
+
+        // Update cart display
+        function updateCart() {
+            const cartItems = document.getElementById('cartItems');
+            
+            if (cart.length === 0) {
+                cartItems.innerHTML = '<div class="empty-cart">Cart is empty</div>';
+                document.getElementById('checkoutBtn').disabled = true;
+            } else {
+                cartItems.innerHTML = cart.map(item => `
+                    <div class="cart-item" data-id="${item.id}">
+                        <div class="item-info">
+                            <div class="item-name">${item.name}</div>
+                            <div class="item-price">$${item.price.toFixed(2)} x ${item.quantity}</div>
+                        </div>
+                        <div class="item-qty">
+                            <button class="qty-btn" onclick="updateQuantity(${item.id}, -1)">-</button>
+                            <span>${item.quantity}</span>
+                            <button class="qty-btn" onclick="updateQuantity(${item.id}, 1)">+</button>
+                            <button class="remove-btn" onclick="removeFromCart(${item.id})">✕</button>
+                        </div>
+                    </div>
+                `).join('');
+                document.getElementById('checkoutBtn').disabled = false;
+            }
+
+            // Update totals
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const tax = subtotal * 0.10;
+            const total = subtotal + tax;
+
+            document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('tax').textContent = `$${tax.toFixed(2)}`;
+            document.getElementById('total').textContent = `$${total.toFixed(2)}`;
+        }
+
+        // Update quantity
+        function updateQuantity(productId, change) {
+            const item = cart.find(i => i.id === productId);
+            if (item) {
+                item.quantity += change;
+                if (item.quantity <= 0) {
+                    removeFromCart(productId);
+                } else {
+                    updateCart();
+                }
+            }
+        }
+
+        // Remove from cart
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.id !== productId);
+            updateCart();
+        }
+
+        // Select payment method
+        function selectPayment(method) {
+            selectedPayment = method;
+            document.querySelectorAll('.payment-btn').forEach(btn => {
+                btn.classList.toggle('selected', btn.dataset.method === method);
+            });
+        }
+
+        // Handle checkout
+        function handleCheckout() {
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const tax = subtotal * 0.10;
+            const total = subtotal + tax;
+            const receiptNumber = `RCP-${new Date().toISOString().slice(0,10).replace(/-/g, '')}-${Math.floor(Math.random() * 9000 + 1000)}`;
+
+            // Create sale record
+            const sale = {
+                receiptNumber,
+                date: new Date().toLocaleString(),
+                items: cart.map(i => `${i.name} x${i.quantity}`).join(', '),
+                itemCount: cart.reduce((sum, item) => sum + item.quantity, 0),
+                total: total.toFixed(2),
+                payment: selectedPayment,
+                status: 'Completed'
+            };
+
+            salesHistory.unshift(sale);
+
+            // Show success modal
+            document.getElementById('receiptNumber').textContent = `Receipt: ${receiptNumber}`;
+            document.getElementById('receiptTotal').textContent = `Total: $${total.toFixed(2)}`;
+            document.getElementById('successModal').style.display = 'flex';
+
+            // Clear cart
+            cart = [];
+            updateCart();
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('successModal').style.display = 'none';
+        }
+
+        // Render sales history
+        function renderSalesHistory() {
+            const tbody = document.getElementById('salesTableBody');
+            
+            if (salesHistory.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px; color: #666;">No sales yet</td></tr>';
+            } else {
+                tbody.innerHTML = salesHistory.map(sale => `
+                    <tr class="sale-row" data-receipt="${sale.receiptNumber}">
+                        <td>${sale.receiptNumber}</td>
+                        <td>${sale.date}</td>
+                        <td>${sale.itemCount} items</td>
+                        <td>$${sale.total}</td>
+                        <td>${sale.payment.charAt(0).toUpperCase() + sale.payment.slice(1)}</td>
+                        <td><span class="status-completed">${sale.status}</span></td>
+                    </tr>
+                `).join('');
+            }
+        }
+    </script>
+</body>
+</html>
