@@ -35,6 +35,7 @@ jobs:
         # Proceed even if previous steps failed
         continue-on-error: true
         run: |
+          npm install -g newman newman-reporter-htmlextra
           newman run NardPOS_API_Collection.postman_collection.json \
             --reporters cli,htmlextra \
             --reporter-htmlextra-export reports/api-report.html
@@ -79,9 +80,11 @@ jobs:
           BASE_URL: http://localhost:8000/index.html
         run: |
           cd ui-tests
+          mkdir -p reports
           HEADLESS=true pytest test_nardpos_e2e.py -v \
             --html=reports/report.html \
             --self-contained-html
+          ls -la reports/
       
       - name: Upload UI Test Report
         uses: actions/upload-artifact@v4
@@ -90,9 +93,9 @@ jobs:
           name: ui-test-report
           path: ui-tests/reports/
       
-      - name: Upload Screenshots on Failure
+      - name: Upload Screenshots
         uses: actions/upload-artifact@v4
-        if: failure()
+        if: always()
         with:
           name: screenshots
           path: ui-tests/screenshots/
